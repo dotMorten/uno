@@ -307,6 +307,7 @@ namespace Uno.UI.DataBinding
 				}
 
 				var newValueActionWeak = Uno.UI.DataBinding.WeakReferencePool.RentWeakReference(null, newValueAction);
+				var disposed = false;
 
 				PropertyChangedEventHandler handler = (s, args) =>
 				{
@@ -317,7 +318,10 @@ namespace Uno.UI.DataBinding
 							typeof(BindingPath).Log().Debug("Property changed for {0} on [{1}]".InvariantCultureFormat(propertyName, dataContextReference.Target?.GetType()));
 						}
 
-						(newValueActionWeak.Target as Action)?.Invoke();
+						if (!disposed)
+						{
+							(newValueActionWeak.Target as Action)?.Invoke();
+						}
 					}
 				};
 
@@ -329,6 +333,7 @@ namespace Uno.UI.DataBinding
 					// the caller and the callee, in the same way "newValueActionWeak"
 					// does not link the callee to the caller.
 					var that = dataContextReference.Target as INotifyPropertyChanged;
+					disposed = true;
 
 					if (that != null)
 					{
